@@ -1,76 +1,78 @@
-# Digital Forensics-EnCase Image Analysis
-This repository documents a full digital forensic investigation conducted on a NIST CFReDS forensic test image. The project follows real-world forensic methodology including evidence acquisition, hash verification, chain of custody logging, artifact recovery using Autopsy and Sleuth Kit, and a formal written examination report.
-The image included a worksheet with questions that are intended in guiding the investigation along. The website tasks the user with performing a full forensic analysis to attempt to uncover the activities performed by the user of the system.
-I will be using the worksheet for guidance and employing my own methods of finding the answer to the question as well as explaining the tools and methedologies along the way. The analysis will include recovery of deleted files, keyword searches, and a timeline creation. Any hidden files and executables will be identified.
-Here is the link to the forensic test image used:
+# Digital Forensics — EnCase Image Analysis
 
-https://cfreds.nist.gov/all/DFIR_AB/ForensicsImageTestimage
+This repository documents a complete digital forensic investigation conducted on a NIST CFReDS forensic test image. The project follows real-world forensic methodology, encompassing evidence acquisition, hash verification, chain of custody documentation, artifact recovery using Autopsy and Sleuth Kit, and a formal written examination report.
 
-****
+The test image included a guided worksheet designed to direct a full forensic analysis aimed at uncovering the activities performed by the system's user. That worksheet was meant to serve as a structural framework for this investigation but I decided in the end not to follow it. Instead it was supplemented by independent analytical methods and thorough documentation of the tools and methodologies employed. The analysis covers deleted file recovery, keyword searches, timeline construction, and identification of hidden files and executables.
 
-## Chain Of Custody Log
+**Forensic Test Image:** https://cfreds.nist.gov/all/DFIR_AB/ForensicsImageTestimage
 
-In a real life forensics investigation, the first step would be to collect the evidence and alongside it would be to start a chain of custody form. A chain of custody is the written record of who had an evidence item, when they had it, where it was stored, and why it was handled. This helps demonstrate the evidence was maintained under controlled conditions from collection up to the presentation.
+---
 
-For this project I will be using a template from Elite Digital Forensic:
-https://elitedigitalforensics.com/free-chain-of-custody-form-computer/
+## Chain of Custody Log
 
-I will be filling this form before beginning with the investigation
+In a real-world forensic investigation, evidence collection is accompanied by a chain of custody form — a written record documenting who handled an evidence item, when, where it was stored, and the reason for each transfer. The documentation included in the repo demonstrates that evidence was maintained under controlled conditions from collection through presentation.
 
+A chain of custody template from [Elite Digital Forensics](https://elitedigitalforensics.com/free-chain-of-custody-form-computer/) was completed prior to beginning the investigation.
 
-Here is the folder format on my external drive
+### Evidence Directory Structure
+
+The following directory structure was used to organize all case materials on the external evidence drive:
+
+```
 CaseName\
-	evidence\
-		original_image.dd -- will not be touching this original copy
-	working\
-		copy_image.dd -- only work from this copy
-	hashes\
-		hashes.txt -- MD5 + SHA256 of original
-	autopsy_case\
-		CaseName.aut -- autopsy case file
-		CaseName\ -- the autopsy generated data
-	reports\
-		chain-of-custody\
-			2020JimmWilson-Chain-of-Custody -- chain of custody log for the case
-		email-headers\
-			email.eml -- any raw email headers are kept here
-		evidence-inventory\
-			evidence doc -- any original evidence extracts are kept here
-		evidence-notes\
-			evidence.md -- individual notes for each piece of evidence kept here
-		image-evidence\
-			originals\
-				original.jpg -- original image jpg for metadata
-			screenshots\
-				screenshot.jpg -- screenshots for personal reference
-			working-copies\
-				originalcopy.jpg -- copy of orginal to examine
-		case_notes.txt
-		evidence_report.pdf
-		
-For note taking I will be using Obsidian under the reports folder and creating md files for any important evidence any screenshots will also be added there.
+    evidence\
+        original_image.dd     -- read-only original; never modified
+    working\
+        copy_image.dd         -- all analysis performed on this copy
+    hashes\
+        hashes.txt            -- MD5 + SHA-256 of original image
+    autopsy_case\
+        CaseName.aut          -- Autopsy case file
+        CaseName\             -- Autopsy-generated data directory
+    reports\
+        chain-of-custody\
+            2020JimmWilson-Chain-of-Custody
+        email-headers\
+            email.eml         -- raw email headers
+        evidence-inventory\
+            evidence doc      -- original evidence extracts
+        evidence-notes\
+            evidence.md       -- per-artifact notes
+        image-evidence\
+            originals\
+                original.jpg  -- source image with metadata intact
+            screenshots\
+                screenshot.jpg
+            working-copies\
+                originalcopy.jpg
+        case_notes.txt
+        evidence_report.pdf
+```
 
-The Following Steps were taken:
-1. Evidence Aquisition
-	* The disk image that was downloaded was already in E01 format
-	* verified integrity using MD5/SHA-1 hashes
-	![[Screenshot 2026-04-08 201108.png]]
-	* I will store this hash in the hashes folder under hashes.txt
-	* Now I will be storing a copy of the image under the working folder and checking the hash for integrity and it should match with current hash we have stored.
-	![[Screenshot 2026-04-15 193900.png|643]]
-In this image we can see that the hashes are the same so now we can get started with working on finding any evidence and information from this disk image.
+All notes were taken in Obsidian and stored as Markdown files under the `reports/` directory. Supporting screenshots are co-located with their respective notes.
 
-Additionally under the /evidence-inventory folder there is an excel file that was extracted from autopsy that contains a log of all the evidence along with its metadata and the hashes for each piece of evidence extracted.
+---
 
-2. Analysis in Autopsy:
-	* Loaded image into Autopsy
-Autopsy sort any files into separate section under the data artifacts. This makes the analysis a lot simpler when if you know what you are looking for whether it is email messages or the recycle bin. This makes it easier as you dont have to go through the folders individually.
+## Investigation Steps
 
-![[Pasted image 20260427105108.png]]
+### 1. Evidence Acquisition
 
-When going through the emails and other files autopsy has the feature of being able to tag items for later review. There are a number of tags such as being able to put them under "notable", "followup", "bookmark", or you can create your own personal tags along with adding comments.
-I decided with going through the files in the disk image and finding anything that seemed to be suspicious and could be used for evidednce and tagged them as notable. I would go through these files later on and analyze them individually and take notes on the evidence.
-Here is an example of the note format I kept for each piece of evidence:
-![[Pasted image 20260427113545.png]]
+- The disk image was provided in E01 format.
+- Integrity was verified using MD5 and SHA-1 hashes.
+- Hashes were recorded in `hashes/hashes.txt`. Evidence hashes were extracted using autopsy built in extraction feature and placed into an excel file under `/evidence-inventory/`
+- A working copy was created and its hash verified against the stored value to confirm integrity before analysis began.
 
-Once I finished collecting notes and evidence I put together a report on the evidence a report in markdown file format in order to be able to make editing a lot more simple. I used this document as a draft and produced a final report for the case.
+The matching hashes confirm the working copy is an unaltered duplicate of the original image.
+
+An evidence inventory spreadsheet exported from Autopsy — containing a full log of extracted artifacts along with their metadata and hashes — is available under `/evidence-inventory/`.
+
+### 2. Analysis in Autopsy
+
+- The verified working image was loaded into Autopsy for analysis.
+
+Autopsy categorizes artifacts into distinct sections (e.g., email messages, Recycle Bin, web history), enabling targeted review without manually traversing the entire directory tree.
+Autopsy's tagging system was used throughout the review to flag items of interest. Artifacts with evidentiary value were tagged as **Notable** and subsequently examined individually using a standardized note format.
+
+### 3. Reporting
+
+All findings were compiled into a Markdown draft to facilitate iterative editing, which was then finalized into a formal case report which is included in this repo.
